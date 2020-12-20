@@ -1,4 +1,4 @@
-package dev.majekdor.keeplore;
+package dev.majek.keeplore;
 
 import java.util.Objects;
 
@@ -106,4 +106,3 @@ public final class Pair<A, B> {
         return '{' + Objects.toString(first) + ", " + Objects.toString(second) + '}';
     }
 }
-

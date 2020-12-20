@@ -1,8 +1,7 @@
-package dev.majekdor.keeplore;
+package dev.majek.keeplore;
 
 import net.md_5.bungee.api.ChatColor;
 import org.apache.commons.lang.WordUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -22,20 +21,35 @@ import java.util.*;
 public final class KeepLore extends JavaPlugin implements Listener, CommandExecutor {
 
     /**
-     * Map of locations of blocks with preserved lore.
+     * Map of locations of blocks with preserved lore and display name.
      */
     public static Map<Location, Pair<String, List<String>>> loreMap = new HashMap<>();
+
+    public static KeepLore instance;
+    private static Database db;
+    public static KeepLore getInstance() { return instance; }
+    public KeepLore() {
+        instance = this;
+    }
 
     @Override
     public void onEnable() {
         // Plugin startup logic
         this.getServer().getPluginManager().registerEvents(this, this);
-        Objects.requireNonNull(this.getCommand("testblock")).setExecutor(this);
+        //Objects.requireNonNull(this.getCommand("testblock")).setExecutor(this);
+
+        // Load hashmap from SQLite database
+        db = new SQLite(this);
+        db.load();
+        db.getLocationLore();
+        db.clearTable();
     }
 
     @Override
     public void onDisable() {
-        // Plugin shutdown logic
+        // Save hashmap to SQLite database
+        for (Location location : loreMap.keySet())
+            db.addLocationLore(location, loreMap.get(location).getFirst(), loreMap.get(location).getSecond());
     }
 
     @Override
@@ -69,7 +83,6 @@ public final class KeepLore extends JavaPlugin implements Listener, CommandExecu
             displayName = WordUtils.capitalizeFully(displayName);
         } else
             displayName = blockPlaced.getItemMeta().getDisplayName();
-        Bukkit.getConsoleSender().sendMessage(event.getBlockPlaced().getLocation().toString());
         loreMap.put(event.getBlockPlaced().getLocation(), new Pair<>(displayName, lore));
     }
 
@@ -79,6 +92,7 @@ public final class KeepLore extends JavaPlugin implements Listener, CommandExecu
      */
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
+        // Check if the drops are equal to one so we don't mess with diamonds blocks and fortune, for example
         if (loreMap.containsKey(event.getBlock().getLocation()) && event.getBlock().getDrops().size() == 1) {
             ItemStack blockBroken = event.getBlock().getDrops().stream().findFirst().get();
             ItemMeta meta = blockBroken.getItemMeta();
@@ -86,7 +100,7 @@ public final class KeepLore extends JavaPlugin implements Listener, CommandExecu
             meta.setLore(loreMap.get(event.getBlock().getLocation()).getSecond());
             blockBroken.setItemMeta(meta);
             event.setDropItems(false);
-            Bukkit.getConsoleSender().sendMessage("DID IT BEACHES ");
+            loreMap.remove(event.getBlock().getLocation());
             event.getBlock().getLocation().getWorld().dropItemNaturally(event.getBlock().getLocation(), blockBroken);
         }
     }
@@ -96,7 +110,7 @@ public final class KeepLore extends JavaPlugin implements Listener, CommandExecu
      * @param message String containing color codes.
      * @return Formatted message.
      */
-    public static String applyColorCodes(String message) {
+    private String applyColorCodes(String message) {
         return ChatColor.translateAlternateColorCodes('&', message);
     }
 }

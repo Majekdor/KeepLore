@@ -1,11 +1,11 @@
 name: KeepLore
-version: ${project.version}
+version: 1.0.0
 main: dev.majekdor.keeplore.KeepLore
 api-version: 1.16
 prefix: KeepLore
 authors: [ Majekdor ]
 description: Preserve item lore on blocks/heads that are placed and broken.
-website: https://majek.dev
+website: https://majek.dev/KeepLore
 commands:
   testblock:
     description: Get a test block with lore.
