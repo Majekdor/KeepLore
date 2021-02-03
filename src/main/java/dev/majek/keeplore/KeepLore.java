@@ -27,7 +27,7 @@ public final class KeepLore extends JavaPlugin implements Listener, CommandExecu
 
     public static KeepLore instance;
     private static Database db;
-    public static KeepLore getInstance() { return instance; }
+
     public KeepLore() {
         instance = this;
     }
@@ -36,7 +36,10 @@ public final class KeepLore extends JavaPlugin implements Listener, CommandExecu
     public void onEnable() {
         // Plugin startup logic
         this.getServer().getPluginManager().registerEvents(this, this);
-        //Objects.requireNonNull(this.getCommand("testblock")).setExecutor(this);
+        Objects.requireNonNull(this.getCommand("testblock")).setExecutor(this);
+
+        // Metrics
+        new Metrics(this, 10228);
 
         // Load hashmap from SQLite database
         db = new SQLite(this);
@@ -54,7 +57,7 @@ public final class KeepLore extends JavaPlugin implements Listener, CommandExecu
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (command.getName().equalsIgnoreCase("testblock")) {
+        if (command.getName().equalsIgnoreCase("testblock") && sender.isOp()) {
             ItemStack testBlock = new ItemStack(Material.DIAMOND_BLOCK);
             ItemMeta meta = testBlock.getItemMeta();
             meta.setDisplayName(applyColorCodes("&b&lTest Block"));

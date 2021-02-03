@@ -1,6 +1,6 @@
 name: KeepLore
 version: 1.0.0
-main: dev.majekdor.keeplore.KeepLore
+main: dev.majek.keeplore.KeepLore
 api-version: 1.16
 prefix: KeepLore
 authors: [ Majekdor ]
